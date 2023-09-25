@@ -1,13 +1,11 @@
-﻿CustomCollections.LinkedList<int> ints = new CustomCollections.LinkedList<int>();
+﻿CustomCollections.LinkedList<int> list = new CustomCollections.LinkedList<int> { 1 };
 
-foreach (var i in Enumerable.Range(1, 10))
+list.CollectionChanged += List_CollectionChanged;
+list[0] = 2;
+
+void List_CollectionChanged(CustomCollections.NotifyCollectionChangedEventArgs<int> obj)
 {
-    ints.Add(i);
+    Console.WriteLine(obj);
 }
 
-var arr = new int[15];
-
-ints.CopyTo(arr, 6);
-
-Console.WriteLine("Finished");
 Console.ReadLine();

@@ -9,20 +9,71 @@ public class LinkedList<T> : ICollection<T>
     public int Count { get; private set; }
     public bool IsReadOnly => false;
 
+    public event Action<NotifyCollectionChangedEventArgs<T>> CollectionChanged;
+
+    public T this[int index]
+    {
+        get
+        {
+            if (index < 0 || index >= Count)
+                throw new IndexOutOfRangeException(nameof(index));
+
+            int i = 0;
+            var current = _root;
+            while (current != null)
+            {
+                if (i == index)
+                {
+                    return current.Value;
+                }
+
+                i++;
+                current = current.Next;
+            }
+
+            throw new IndexOutOfRangeException(nameof(index));
+        }
+        set
+        {
+            if (index < 0 || index >= Count)
+                throw new IndexOutOfRangeException(nameof(index));
+
+            int i = 0;
+            var current = _root;
+            while (current != null)
+            {
+                if (i == index)
+                {
+                    var previousValue = current.Value;
+                    current.Value = value;
+                    CollectionChanged?.Invoke(new NotifyCollectionChangedEventArgs<T>(NotifyCollectionChangedAction.Update, current.Value, previousValue));
+                    return;
+                }
+
+                i++;
+                current = current.Next;
+            }
+        }
+    }
+
     public void Add(T item)
     {
+        var old = (ICollection<T>)MemberwiseClone();
+
         if (_root == null)
             _root = new Node<T>(item);
         else
             _root.SetNext(item);
 
         Count++;
+        CollectionChanged?.Invoke(new NotifyCollectionChangedEventArgs<T>(NotifyCollectionChangedAction.Add, (ICollection<T>)MemberwiseClone(), old));
     }
 
     public void Clear()
     {
         _root = null;
         Count = 0;
+        CollectionChanged?.Invoke(new NotifyCollectionChangedEventArgs<T>(NotifyCollectionChangedAction.Clear));
     }
 
     public bool Contains(T item)
@@ -32,7 +83,7 @@ public class LinkedList<T> : ICollection<T>
 
         var current = _root;
 
-        while (current.Next != null)
+        while (current != null)
         {
             if (current.Value!.Equals(item))
                 return true;
@@ -45,9 +96,6 @@ public class LinkedList<T> : ICollection<T>
 
     public void CopyTo(T[] array, int arrayIndex = 0)
     {
-        if (_root == null)
-            throw new InvalidOperationException("Collection is empty.");
-
         if (array == null)
             throw new ArgumentNullException(nameof(array));
 
@@ -78,31 +126,31 @@ public class LinkedList<T> : ICollection<T>
 
     public bool Remove(T item)
     {
+        var old = (ICollection<T>)MemberwiseClone();
         if (_root == null)
             return false;
 
-        if (_root.Next == null)
+        if (_root.Value!.Equals(item))
         {
-            if (_root.Value!.Equals(item))
-            {
-                _root = null;
-                Count--;
-                return true;
-            }
-
-            return false;
+            _root = _root.Next;
+            Count--;
+            CollectionChanged?.Invoke(new NotifyCollectionChangedEventArgs<T>(NotifyCollectionChangedAction.Remove, (ICollection<T>)MemberwiseClone(), old));
+            return true;
         }
+
         var next = _root.Next;
         var current = _root;
 
-        while (next.Next != null)
+        while (next != null)
         {
             if (next.Value!.Equals(item))
             {
-                current.Next.SetNext(next.Next);
+                current.Next = next.Next;
                 Count--;
+                CollectionChanged?.Invoke(new NotifyCollectionChangedEventArgs<T>(NotifyCollectionChangedAction.Remove, (ICollection<T>)MemberwiseClone(), old));
                 return true;
             }
+
             next = next.Next;
         }
 
@@ -113,36 +161,4 @@ public class LinkedList<T> : ICollection<T>
     {
         return GetEnumerator();
     }
-}
-
-internal class LinkedListEnumerator<T> : IEnumerator<T>
-{
-    private Node<T> _currenctNode;
-    private readonly Node<T> _root;
-
-    public LinkedListEnumerator(ref Node<T> node)
-    {
-        _root = node;
-        _currenctNode = node;
-    }
-
-    public T Current => _currenctNode.Value;
-
-    object IEnumerator.Current => Current;
-
-    public bool MoveNext()
-    {
-        if (_currenctNode.Next == null)
-            return false;
-
-        _currenctNode = _currenctNode.Next;
-        return true;
-    }
-
-    public void Reset()
-    {
-        _currenctNode = _root;
-    }
-
-    void IDisposable.Dispose() { }
 }

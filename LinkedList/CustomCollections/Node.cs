@@ -2,19 +2,15 @@
 
 internal class Node<T>
 {
-    public T Value { get; init; }
+    public T Value { get; set; }
 
-    public Node<T>? Next { get; private set; } = null;
+    public Node<T>? Next { get; set; } = null;
 
     public Node(T value)
     {
         Value = value;
     }
 
-    public void SetNext(Node<T> node)
-    {
-        Next = node;
-    }
     public void SetNext(T value)
     {
         var lastNode = this;
@@ -32,8 +28,8 @@ internal class Node<T>
         get
         {
             var current = this;
-            int count = 1;
-            while (current != null)
+            int count = 0;
+            while (current.Next != null)
             {
                 current = current.Next;
                 count++;
@@ -41,5 +37,10 @@ internal class Node<T>
 
             return count;
         }
+    }
+
+    public override string ToString()
+    {
+        return $"{Value} with {ChildrenCount}";
     }
 }
