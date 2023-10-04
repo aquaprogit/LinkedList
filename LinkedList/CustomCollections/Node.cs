@@ -13,7 +13,7 @@ internal class Node<T>
 
     public void SetNext(T value)
     {
-        Node<T> newNode = new Node<T>(value);
+        var newNode = new Node<T>(value);
 
         if (Next == null)
         {
@@ -21,11 +21,12 @@ internal class Node<T>
         }
         else
         {
-            Node<T> current = Next;
+            var current = Next;
             while (current.Next != null)
             {
                 current = current.Next;
             }
+
             current.Next = newNode;
         }
     }
@@ -48,6 +49,6 @@ internal class Node<T>
 
     public override string ToString()
     {
-        return $"{Value} with {ChildrenCount}";
+        return $"{Value} with {ChildrenCount} children";
     }
 }

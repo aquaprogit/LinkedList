@@ -2,7 +2,7 @@
 
 namespace CustomCollections;
 
-public class LinkedList<T> : ICollection<T>
+public class LinkedList<T> : ICollection<T>, ICloneable
 {
     private Node<T>? _root;
 
@@ -18,7 +18,7 @@ public class LinkedList<T> : ICollection<T>
             if (index < 0 || index >= Count)
                 throw new IndexOutOfRangeException(nameof(index));
 
-            int i = 0;
+            var i = 0;
             var current = _root;
             while (current != null)
             {
@@ -38,7 +38,7 @@ public class LinkedList<T> : ICollection<T>
             if (index < 0 || index >= Count)
                 throw new IndexOutOfRangeException(nameof(index));
 
-            int i = 0;
+            var i = 0;
             var current = _root;
             while (current != null)
             {
@@ -58,7 +58,7 @@ public class LinkedList<T> : ICollection<T>
 
     public void Add(T item)
     {
-        var old = (ICollection<T>)MemberwiseClone();
+        var old = (ICollection<T>)Clone();
 
         if (_root == null)
             _root = new Node<T>(item);
@@ -121,12 +121,12 @@ public class LinkedList<T> : ICollection<T>
     {
         return _root == null
             ? Enumerable.Empty<T>().GetEnumerator()
-            : new LinkedListEnumerator<T>(ref _root);
+            : new LinkedListEnumerator<T>(_root);
     }
 
     public bool Remove(T item)
     {
-        var old = (ICollection<T>)MemberwiseClone();
+        var old = (ICollection<T>)Clone();
         if (_root == null)
             return false;
 
@@ -150,7 +150,7 @@ public class LinkedList<T> : ICollection<T>
                 CollectionChanged?.Invoke(new NotifyCollectionChangedEventArgs<T>(NotifyCollectionChangedAction.Remove, (ICollection<T>)MemberwiseClone(), old));
                 return true;
             }
-
+            current = next;
             next = next.Next;
         }
 
@@ -160,5 +160,15 @@ public class LinkedList<T> : ICollection<T>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
+    }
+
+    public object Clone()
+    {
+        var clone = new LinkedList<T>();
+        foreach (var item in this)
+        {
+            clone.Add(item);
+        }
+        return clone;
     }
 }

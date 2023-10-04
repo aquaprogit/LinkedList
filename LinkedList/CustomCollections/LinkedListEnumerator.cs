@@ -7,7 +7,7 @@ internal class LinkedListEnumerator<T> : IEnumerator<T>
     private Node<T>? _currenctNode = null;
     private readonly Node<T> _root;
 
-    public LinkedListEnumerator(ref Node<T> node)
+    public LinkedListEnumerator(Node<T> node)
     {
         _root = node;
     }
@@ -29,6 +29,7 @@ internal class LinkedListEnumerator<T> : IEnumerator<T>
 
             _currenctNode = _currenctNode.Next;
         }
+
         return true;
     }
 
