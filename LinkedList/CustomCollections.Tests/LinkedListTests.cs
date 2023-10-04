@@ -1,6 +1,3 @@
-using CustomCollections;
-using Xunit;
-
 namespace CustomCollections.Tests;
 
 public class LinkedListTests

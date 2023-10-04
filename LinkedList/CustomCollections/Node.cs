@@ -13,14 +13,21 @@ internal class Node<T>
 
     public void SetNext(T value)
     {
-        var lastNode = this;
+        Node<T> newNode = new Node<T>(value);
 
-        while (lastNode.Next != null)
+        if (Next == null)
         {
-            lastNode = lastNode.Next;
+            Next = newNode;
         }
-
-        lastNode.Next = new Node<T>(value);
+        else
+        {
+            Node<T> current = Next;
+            while (current.Next != null)
+            {
+                current = current.Next;
+            }
+            current.Next = newNode;
+        }
     }
 
     public int ChildrenCount

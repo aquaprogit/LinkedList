@@ -9,7 +9,7 @@ public class LinkedList<T> : ICollection<T>
     public int Count { get; private set; }
     public bool IsReadOnly => false;
 
-    public event Action<NotifyCollectionChangedEventArgs<T>> CollectionChanged;
+    public event Action<NotifyCollectionChangedEventArgs<T>>? CollectionChanged;
 
     public T this[int index]
     {
