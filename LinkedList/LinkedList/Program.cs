@@ -10,6 +10,13 @@ ints.CollectionChanged += Ints_CollectionChanged;
 ints.Add(1);
 ints.Remove(4);
 ints[2] = 100;
+
+foreach (var item in ints)
+{
+    Console.WriteLine(item);
+}
+
+Console.WriteLine("====");
 ints.Clear();
 
 void Ints_CollectionChanged(NotifyCollectionChangedEventArgs<int> obj)
@@ -19,7 +26,8 @@ void Ints_CollectionChanged(NotifyCollectionChangedEventArgs<int> obj)
         NotifyCollectionChangedAction.Add => "Element added",
         NotifyCollectionChangedAction.Remove => "Element removed",
         NotifyCollectionChangedAction.Update => "Collection updated",
-        NotifyCollectionChangedAction.Clear => "Collection cleared"
+        NotifyCollectionChangedAction.Clear => "Collection cleared",
+        _ => throw new NotImplementedException()
     };
     Console.WriteLine(message);
 }
