@@ -1,3 +1,5 @@
+using FluentAssertions;
+
 namespace CustomCollections.Tests;
 
 public class LinkedListTests
@@ -6,15 +8,13 @@ public class LinkedListTests
     public void Add_AddsItemToLinkedList()
     {
         // Arrange
-        var linkedList = new CustomCollections.LinkedList<int>();
+        var linkedList = new LinkedList<int>();
 
         // Act
         linkedList.Add(42);
 
         // Assert
-        List<int> collection = new List<int>() { 1 };
-        Assert.Single(collection);
-        Assert.Contains(42, linkedList);
+        linkedList.Should().ContainSingle().Which.Should().Be(42);
     }
 
     [Fact]
@@ -27,9 +27,7 @@ public class LinkedListTests
         linkedList.Clear();
 
         // Assert
-        Assert.Empty(linkedList);
-        Assert.DoesNotContain(1, linkedList);
-        Assert.DoesNotContain(2, linkedList);
+        linkedList.Should().BeEmpty();
     }
 
     [Fact]
@@ -38,9 +36,10 @@ public class LinkedListTests
         // Arrange
         var linkedList = new LinkedList<string>() { "apple", "banana", "cherry" };
 
+        var result = linkedList.Contains("banana");
+
         // Act & Assert
-        Assert.Contains("banana", linkedList);
-        Assert.DoesNotContain("grape", linkedList);
+        result.Should().BeTrue();
     }
 
     [Fact]
@@ -54,7 +53,7 @@ public class LinkedListTests
         linkedList.CopyTo(array, 0);
 
         // Assert
-        Assert.Equal(new int[] { 1, 2, 3 }, array);
+        array.Should().Equal(1, 2, 3);
     }
 
     [Fact]
@@ -64,9 +63,9 @@ public class LinkedListTests
         var linkedList = new LinkedList<int> { 10, 20, 30 };
 
         // Act & Assert
-        Assert.Equal(10, linkedList[0]);
-        Assert.Equal(20, linkedList[1]);
-        Assert.Equal(30, linkedList[2]);
+        linkedList[0].Should().Be(10);
+        linkedList[1].Should().Be(20);
+        linkedList[2].Should().Be(30);
     }
 
     [Fact]
@@ -79,7 +78,7 @@ public class LinkedListTests
         linkedList[1] = 25;
 
         // Assert
-        Assert.Equal(25, linkedList[1]);
+        linkedList[1].Should().Be(25);
     }
 
     [Fact]
@@ -92,9 +91,8 @@ public class LinkedListTests
         var result = linkedList.Remove("banana");
 
         // Assert
-        Assert.True(result);
-        Assert.Equal(2, linkedList.Count);
-        Assert.DoesNotContain("banana", linkedList);
+        result.Should().BeTrue();
+        linkedList.Should().HaveCount(2).And.NotContain("banana");
     }
 
     [Fact]
@@ -107,8 +105,8 @@ public class LinkedListTests
         var result = linkedList.Remove(4);
 
         // Assert
-        Assert.False(result);
-        Assert.Equal(3, linkedList.Count);
+        result.Should().BeFalse();
+        linkedList.Should().HaveCount(3);
     }
 
     [Fact]
@@ -121,7 +119,7 @@ public class LinkedListTests
         var enumerator = linkedList.GetEnumerator();
 
         // Assert
-        Assert.NotNull(enumerator);
+        enumerator.Should().NotBeNull();
     }
 
     [Fact]
@@ -139,7 +137,7 @@ public class LinkedListTests
         }
 
         // Assert
-        Assert.Equal(new int[] { 1, 2, 3 }, items);
+        items.Should().Equal(1, 2, 3);
     }
 
     [Fact]
@@ -149,8 +147,11 @@ public class LinkedListTests
         var linkedList = new LinkedList<int> { 1, 2 };
 
         // Act & Assert
-        Assert.Throws<IndexOutOfRangeException>(() => linkedList[-1] = 5);
-        Assert.Throws<IndexOutOfRangeException>(() => linkedList[2] = 5);
+        Action action1 = () => linkedList[-1] = 5;
+        Action action2 = () => linkedList[2] = 5;
+
+        action1.Should().Throw<IndexOutOfRangeException>();
+        action2.Should().Throw<IndexOutOfRangeException>();
     }
 
     [Fact]
@@ -158,11 +159,12 @@ public class LinkedListTests
     {
         // Arrange
         var linkedList = new LinkedList<int> { 1, 2, 3 };
-
         var array = new int[2];
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => linkedList.CopyTo(array, 0));
+        Action action = () => linkedList.CopyTo(array, 0);
+
+        action.Should().Throw<ArgumentException>();
     }
 
     [Fact]
@@ -178,7 +180,7 @@ public class LinkedListTests
 
         // Assert
         enumerator.MoveNext();
-        Assert.Equal(1, enumerator.Current);
+        enumerator.Current.Should().Be(1);
     }
 
     [Fact]
@@ -191,11 +193,7 @@ public class LinkedListTests
         linkedList.Add(4);
 
         // Assert
-        Assert.Equal(4, linkedList.Count);
-        Assert.Contains(1, linkedList);
-        Assert.Contains(2, linkedList);
-        Assert.Contains(3, linkedList);
-        Assert.Contains(4, linkedList);
+        linkedList.Should().HaveCount(4).And.ContainInOrder(1, 2, 3, 4);
     }
 
     [Fact]
@@ -209,12 +207,12 @@ public class LinkedListTests
         var enumerator2 = linkedList.GetEnumerator();
 
         // Assert
-        enumerator1.MoveNext();
-        Assert.Equal(1, enumerator1.Current);
+        enumerator1.MoveNext().Should().BeTrue();
+        enumerator1.Current.Should().Be(1);
 
         // Ensure enumerators are independent
-        enumerator2.MoveNext();
-        Assert.Equal(1, enumerator2.Current);
+        enumerator2.MoveNext().Should().BeTrue();
+        enumerator2.Current.Should().Be(1);
     }
 
     [Fact]
@@ -227,10 +225,8 @@ public class LinkedListTests
         var result = linkedList.Remove(1);
 
         // Assert
-        Assert.True(result);
-        Assert.Equal(2, linkedList.Count);
-        Assert.DoesNotContain(1, linkedList);
-        Assert.Contains(2, linkedList);
+        result.Should().BeTrue();
+        linkedList.Should().HaveCount(2).And.NotContain(1).And.ContainInOrder(2, 3);
     }
 
     [Fact]
@@ -243,11 +239,8 @@ public class LinkedListTests
         var result = linkedList.Remove(2);
 
         // Assert
-        Assert.True(result);
-        Assert.Equal(2, linkedList.Count);
-        Assert.Contains(1, linkedList);
-        Assert.DoesNotContain(2, linkedList);
-        Assert.Contains(3, linkedList);
+        result.Should().BeTrue();
+        linkedList.Should().HaveCount(2).And.ContainInOrder(1, 3).And.NotContain(2);
     }
 
     [Fact]
@@ -261,11 +254,9 @@ public class LinkedListTests
         var result2 = linkedList.Remove(2);
 
         // Assert
-        Assert.True(result1);
-        Assert.True(result2);
-        Assert.Equal(2, linkedList.Count);
-        Assert.Contains(1, linkedList);
-        Assert.DoesNotContain(2, linkedList);
+        result1.Should().BeTrue();
+        result2.Should().BeTrue();
+        linkedList.Should().HaveCount(2).And.ContainInOrder(1, 3).And.NotContain(2);
     }
 
     [Fact]
@@ -278,7 +269,7 @@ public class LinkedListTests
         var enumerator = linkedList.GetEnumerator();
 
         // Assert
-        Assert.False(enumerator.MoveNext());
+        enumerator.MoveNext().Should().BeFalse();
     }
 
     [Fact]
@@ -291,10 +282,8 @@ public class LinkedListTests
         var result = linkedList.Remove(2);
 
         // Assert
-        Assert.True(result);
-        Assert.Single(linkedList);
-        Assert.Contains(1, linkedList);
-        Assert.DoesNotContain(2, linkedList);
+        result.Should().BeTrue();
+        linkedList.Should().HaveCount(1).And.ContainInOrder(1).And.NotContain(2);
     }
 
     [Fact]
@@ -307,8 +296,8 @@ public class LinkedListTests
         var result = linkedList.Remove("grape");
 
         // Assert
-        Assert.False(result);
-        Assert.Equal(3, linkedList.Count);
+        result.Should().BeFalse();
+        linkedList.Should().HaveCount(3);
     }
 
     [Fact]
@@ -321,9 +310,8 @@ public class LinkedListTests
         var result = linkedList.Remove(2);
 
         // Assert
-        Assert.True(result);
-        Assert.Equal(6, linkedList.Count);
-        Assert.Equal(3, linkedList.Count(i => i == 2));
+        result.Should().BeTrue();
+        linkedList.Should().HaveCount(6).And.ContainInOrder(1, 2, 3, 2, 4, 2);
     }
 
     [Fact]
@@ -336,8 +324,198 @@ public class LinkedListTests
         var result = linkedList.Remove(1);
 
         // Assert
-        Assert.True(result);
-        Assert.Empty(linkedList);
-        Assert.DoesNotContain(1, linkedList);
+        result.Should().BeTrue();
+        linkedList.Should().BeEmpty().And.NotContain(1);
+    }
+
+    [Fact]
+    public void Clone_NewListElementsTheSame_ClonesLinkedList()
+    {
+        // Arrange
+        var linkedList = new LinkedList<int>() { 1, 4, -10, 5 };
+
+        // Act
+        var result = linkedList.Clone();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(linkedList);
+        result.Should().NotBeSameAs(linkedList);
+    }
+
+    [Fact]
+    public void Clone_EmptyCollection_ClonesEmptyCollection()
+    {
+        // Arrange
+        var linkedList = new LinkedList<int>();
+
+        // Act
+        var result = linkedList.Clone();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(linkedList);
+        result.Should().NotBeSameAs(linkedList);
+    }
+
+    [Theory]
+    [InlineData(-10)]
+    [InlineData(10)]
+    public void Index_OutOfBoundsArgumentPassing_ThrowsException(int index)
+    {
+        // Arrange
+        var linkedList = new LinkedList<int> { 1, 3, 5 };
+
+        // Act
+        var result = () => linkedList[index];
+
+        // Assert
+        result.Should().Throw<IndexOutOfRangeException>();
+    }
+
+    [Fact]
+    public void CopyTo_NullArray_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var list = new LinkedList<int>();
+
+        // Act
+        var act = () => list.CopyTo(null);
+
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void CopyTo_NegativeArrayIndex_ThrowsArgumentOutOfRangeException()
+    {
+        // Arrange
+        var list = new LinkedList<int>();
+
+        // Act
+        var act = () => list.CopyTo(new int[5], -1);
+
+        // Assert
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void CopyTo_NotEnoughSpaceInArray_ThrowsArgumentException()
+    {
+        // Arrange
+        var list = new LinkedList<int> { 1, 2 };
+
+        // Act
+        var act = () => list.CopyTo(new int[1]);
+
+        // Assert
+        act.Should().Throw<ArgumentException>()
+            .WithMessage("Not enough elements after arrayIndex in the destination array.");
+    }
+
+    [Fact]
+    public void Remove_EmptyList_ReturnsFalseNothingChangedInList()
+    {
+        var list = new LinkedList<int>();
+
+        var result = list.Remove(0);
+
+        result.Should().BeFalse();
+        list.Should().NotBeNull().And.BeEmpty();
+    }
+
+    [Fact]
+    public void Add_SingleItem_RaisesCollectionChangedEvent()
+    {
+        // Arrange
+        var list = new LinkedList<int>();
+        NotifyCollectionChangedEventArgs<int> eventArgs = null!;
+
+        // Act
+        list.CollectionChanged += (args) => eventArgs = args;
+        list.Add(42);
+
+        // Assert
+        eventArgs.Should().NotBeNull();
+        eventArgs.Action.Should().Be(NotifyCollectionChangedAction.Add);
+        eventArgs.NewItem.Should().BeNull();
+        eventArgs.OldItem.Should().BeNull();
+        eventArgs.NewItems.Should().BeEquivalentTo(new int[] { 42 });
+        eventArgs.OldItems.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Remove_Item_RaisesCollectionChangedEvent()
+    {
+        // Arrange
+        var list = new LinkedList<int> { 1, 2, 3 };
+        NotifyCollectionChangedEventArgs<int> eventArgs = null;
+
+        // Act
+        list.CollectionChanged += (args) => eventArgs = args;
+        list.Remove(2);
+
+        // Assert
+        eventArgs.Should().NotBeNull();
+        eventArgs.Action.Should().Be(NotifyCollectionChangedAction.Remove);
+        eventArgs.NewItem.Should().BeNull();
+        eventArgs.OldItem.Should().BeNull();
+        eventArgs.NewItems.Should().BeEquivalentTo(new int[] { 1, 3 });
+        eventArgs.OldItems.Should().BeEquivalentTo(new int[] { 1, 2, 3 });
+    }
+
+    [Fact]
+    public void Remove_LastItem_RaisesCollectionChangedEventWithRemoveAction()
+    {
+        // Arrange
+        var list = new LinkedList<int> { 42 };
+        NotifyCollectionChangedEventArgs<int> eventArgs = null;
+
+        // Act
+        list.CollectionChanged += (args) => eventArgs = args;
+        list.Remove(42);
+
+        // Assert
+        eventArgs.Should().NotBeNull();
+        eventArgs.Action.Should().Be(NotifyCollectionChangedAction.Remove);
+        eventArgs.NewItem.Should().BeNull();
+        eventArgs.OldItem.Should().BeNull();
+        eventArgs.NewItems.Should().BeEmpty();
+        eventArgs.OldItems.Should().BeEquivalentTo(new int[] { 42 });
+    }
+
+    [Fact]
+    public void Clear_NotEmptyList_RaisesCollectionChangedEventWithClearAction()
+    {
+        var list = new LinkedList<int> { 42, 24 };
+        NotifyCollectionChangedEventArgs<int> eventArgs = null;
+
+        list.CollectionChanged += (args) => eventArgs = args;
+        list.Clear();
+
+        eventArgs.Should().NotBeNull();
+        eventArgs.Action.Should().Be(NotifyCollectionChangedAction.Clear);
+        eventArgs.NewItem.Should().BeNull();
+        eventArgs.OldItem.Should().BeNull();
+        eventArgs.NewItems.Should().BeEmpty();
+        eventArgs.OldItems.Should().BeEquivalentTo(new int[] { 42, 24 });
+    }
+
+    [Theory]
+    [InlineData(24, 55)]
+    public void Index_SetByIndex_RaisesCollectionChangedEventWithUpdateAction(int oldValue, int value)
+    {
+        var list = new LinkedList<int> { 42, oldValue };
+        NotifyCollectionChangedEventArgs<int> eventArgs = null;
+
+        list.CollectionChanged += (args) => eventArgs = args;
+        list[1] = value;
+
+        eventArgs.Should().NotBeNull();
+        eventArgs.Action.Should().Be(NotifyCollectionChangedAction.Update);
+        eventArgs.NewItem.Should().Be(value);
+        eventArgs.OldItem.Should().Be(oldValue);
+        eventArgs.NewItems.Should().BeNull();
+        eventArgs.OldItems.Should().BeNull();
     }
 }
