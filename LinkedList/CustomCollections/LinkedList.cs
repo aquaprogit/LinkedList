@@ -71,9 +71,11 @@ public class LinkedList<T> : ICollection<T>, ICloneable
 
     public void Clear()
     {
+        var old = (ICollection<T>)Clone();
+
         _root = null;
         Count = 0;
-        CollectionChanged?.Invoke(new NotifyCollectionChangedEventArgs<T>(NotifyCollectionChangedAction.Clear));
+        CollectionChanged?.Invoke(new NotifyCollectionChangedEventArgs<T>(NotifyCollectionChangedAction.Clear, (ICollection<T>)MemberwiseClone(), old));
     }
 
     public bool Contains(T item)
@@ -150,6 +152,7 @@ public class LinkedList<T> : ICollection<T>, ICloneable
                 CollectionChanged?.Invoke(new NotifyCollectionChangedEventArgs<T>(NotifyCollectionChangedAction.Remove, (ICollection<T>)MemberwiseClone(), old));
                 return true;
             }
+
             current = next;
             next = next.Next;
         }
@@ -169,6 +172,7 @@ public class LinkedList<T> : ICollection<T>, ICloneable
         {
             clone.Add(item);
         }
+
         return clone;
     }
 }
